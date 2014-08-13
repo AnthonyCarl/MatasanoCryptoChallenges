@@ -26,8 +26,8 @@ namespace MatasanoCryptoChallenges.Set1
                 throw new ArgumentOutOfRangeException("hexA", "both hex strings must be the same length.");
             }
 
-            var bytesA = Challenge1.FromHex(hexA);
-            var bytesB = Challenge1.FromHex(hexB);
+            var bytesA = Challenge1.ByteHexToByteArray(hexA);
+            var bytesB = Challenge1.ByteHexToByteArray(hexB);
 
             var xorBytes = Xor(bytesA, bytesB);
             var hexResult = ToHex(xorBytes);

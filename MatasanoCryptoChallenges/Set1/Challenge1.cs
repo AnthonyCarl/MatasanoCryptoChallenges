@@ -6,11 +6,18 @@ namespace MatasanoCryptoChallenges.Set1
 {
     public class Challenge1
     {
-        public static byte[] FromHex(string hex)
+        public static string ByteHexToBase64(string hex)
+        {
+            var byteArray = ByteHexToByteArray(hex);
+            var base64 = Convert.ToBase64String(byteArray);
+            return base64;
+        }
+
+        public static byte[] ByteHexToByteArray(string hex)
         {
             if (hex == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException("hex");
             }
 
             if (hex.Length % 2 != 0)
@@ -32,13 +39,6 @@ namespace MatasanoCryptoChallenges.Set1
             }
 
             return byteArray;
-        }
-
-        public static string ByteHexToBase64(string hex)
-        {
-            var byteArray = FromHex(hex);
-            var base64 = Convert.ToBase64String(byteArray);
-            return base64;
         }
     }
 }
