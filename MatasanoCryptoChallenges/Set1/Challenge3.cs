@@ -13,7 +13,6 @@ namespace MatasanoCryptoChallenges.Set1
 
             var bestGuess = 
                 Enumerable.Range(0, byte.MaxValue + 1)
-                .AsParallel()
                 .Select(x => GetResult(source, (byte)x))
                 .Aggregate((x, y) => x.WeightedValue > y.WeightedValue ? x : y);
 

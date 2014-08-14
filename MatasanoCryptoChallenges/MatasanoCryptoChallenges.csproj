@@ -44,6 +44,10 @@
     <Compile Include="Set1\Challenge2.cs" />
     <Compile Include="Set1\Challenge3.cs" />
     <Compile Include="Set1\Challenge3Result.cs" />
+    <Compile Include="Set1\Challenge4.cs" />
+    <Compile Include="Set1\Challenge4Data.cs" />
+    <Compile Include="Set1\Challenge4Result.cs" />
+    <Compile Include="Set1\IChallenge3Result.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

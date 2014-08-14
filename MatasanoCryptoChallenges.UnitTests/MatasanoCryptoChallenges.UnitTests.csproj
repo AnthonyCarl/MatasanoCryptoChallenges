@@ -60,6 +60,8 @@
     <Compile Include="Set1\Challenge2Tests.cs" />
     <Compile Include="Set1\Challenge3ResultTests.cs" />
     <Compile Include="Set1\Challenge3Tests.cs" />
+    <Compile Include="Set1\Challenge4ResultTests.cs" />
+    <Compile Include="Set1\Challenge4Tests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

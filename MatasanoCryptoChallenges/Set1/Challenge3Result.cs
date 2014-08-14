@@ -1,16 +1,32 @@
 ﻿using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace MatasanoCryptoChallenges.Set1
 {
-    public class Challenge3Result
+    public class Challenge3Result : IChallenge3Result
     {
-        private static readonly Regex PositiveWeight = new Regex(@"[\w ']", RegexOptions.Compiled);
-        private static readonly Regex NegativeWeight = new Regex(@"(?![ '])\W", RegexOptions.Compiled);
+        private const int CommonLetterFactor = 2;
+        private const string PositiveWeightNonWordCharacters = @"\s'";
 
-        private readonly Lazy<int> _weightedLazy;
+        //Maybe revisit using this
+        //private static readonly Regex PositiveWeight = new Regex(@"[\w" + PositiveWeightNonWordCharacters + @"]",
+        //    RegexOptions.Compiled);
 
-        public int WeightedValue { get { return _weightedLazy.Value; } }
+        private static readonly Regex NegativeWeightChars = 
+            new Regex(@"(?![" + PositiveWeightNonWordCharacters + @"])\W", RegexOptions.Compiled);
+
+        private static readonly char[] EnglishCommonUpperLettersAscending =
+        {
+            'C', 'L', 'D', 'H', 'S', 'R', ' ', 'I', 'N', 'O', 'A', 'T', 'E'
+        };
+
+        private readonly Lazy<decimal> _weightedLazy;
+
+        public decimal WeightedValue
+        {
+            get { return _weightedLazy.Value; }
+        }
 
         public byte Key { get; private set; }
 
@@ -20,15 +36,23 @@ namespace MatasanoCryptoChallenges.Set1
         {
             if (decryptedMessage == null)
             {
-                throw new ArgumentNullException(decryptedMessage);
+                throw new ArgumentNullException("decryptedMessage");
             }
 
             Key = key;
             DecryptedMessage = decryptedMessage;
-            _weightedLazy =
-                new Lazy<int>(
-                    () =>
-                        PositiveWeight.Matches(DecryptedMessage).Count - NegativeWeight.Matches(DecryptedMessage).Count);
+            _weightedLazy = new Lazy<decimal>(() => CalculateWeight(DecryptedMessage));
+        }
+
+        private static decimal CalculateWeight(string decryptedMessage)
+        {
+            var commonLetterWeight =
+                EnglishCommonUpperLettersAscending
+                    .Select(t => decryptedMessage.Count(x => char.ToUpperInvariant(x) == t))
+                    .Select((occurrencesOfChar, i) => (occurrencesOfChar * i * CommonLetterFactor))
+                    .Sum();
+            return (commonLetterWeight - NegativeWeightChars.Matches(decryptedMessage).Count) /
+                   (decimal) decryptedMessage.Length;
         }
     }
 }
