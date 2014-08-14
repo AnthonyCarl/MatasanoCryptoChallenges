@@ -8,7 +8,7 @@ namespace MatasanoCryptoChallenges.Set1
     {
         private const string HexadecimalFormatSpecifier = "x2";
 
-        //First hit is slow, subsequent usage is much faster than doing ToString("x2") on a byte everytime
+        //Incurs a start up cost, but subsequent usage is much faster than doing ToString("x2") on a byte everytime
         private static readonly string[] HexMap =
             Enumerable.Range(0, byte.MaxValue + 1).Select(v => v.ToString(HexadecimalFormatSpecifier)).ToArray();
 
