@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Remoting;
 using MatasanoCryptoChallenges.Set1;
 using Xunit;
 

@@ -47,6 +47,8 @@
     <Compile Include="Set1\Challenge4.cs" />
     <Compile Include="Set1\Challenge4Data.cs" />
     <Compile Include="Set1\Challenge4Result.cs" />
+    <Compile Include="Set1\Challenge5.cs" />
+    <Compile Include="Set1\Challenge6.cs" />
     <Compile Include="Set1\IChallenge3Result.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

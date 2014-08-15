@@ -18,7 +18,7 @@ namespace MatasanoCryptoChallenges.Set1
 
         private static readonly char[] EnglishCommonUpperLettersAscending =
         {
-            'C', 'L', 'D', 'H', 'S', 'R', ' ', 'I', 'N', 'O', 'A', 'T', 'E'
+            'U', 'C', 'D', 'L', 'H', 'R', 'S', ' ', 'N', 'I', 'O', 'A', 'T', 'E'
         };
 
         private readonly Lazy<decimal> _weightedLazy;
@@ -48,8 +48,8 @@ namespace MatasanoCryptoChallenges.Set1
         {
             var commonLetterWeight =
                 EnglishCommonUpperLettersAscending
-                    .Select(t => decryptedMessage.Count(x => char.ToUpperInvariant(x) == t))
-                    .Select((occurrencesOfChar, i) => (occurrencesOfChar * i * CommonLetterFactor))
+                    .Select((c, i) => decryptedMessage.Count(x => char.ToUpperInvariant(x) == c) * (i + 1) * CommonLetterFactor)
+                    //.Select((occurrencesOfChar, i) => (occurrencesOfChar * (i + 1) * CommonLetterFactor))
                     .Sum();
             return (commonLetterWeight - NegativeWeightChars.Matches(decryptedMessage).Count) /
                    (decimal) decryptedMessage.Length;

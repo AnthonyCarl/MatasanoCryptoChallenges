@@ -1,14 +1,47 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace MatasanoCryptoChallenges.Set1
 {
     public class Challenge1
     {
+        private const int ByteChunkSize = 3;
+        private const int Base64ChunkSize = 4;
+
+        private const string HexadecimalFormatSpecifier = "X2";
+
+        private const char Base64Pad = '=';
+
+        private const byte SixMsbMask = 0xfc;
+
+        private const byte TwoLsbMask = 0x03;
+
+        private const byte FourMsbMask = 0xf0;
+
+        private const byte FourLsbMask = 0x0f;
+
+        private const byte TwoMsbMask = 0xc0;
+
+        private const byte SixLsbMask = 0x3f;
+
+        private static readonly char[] Base64Map = 
+           {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O',
+            'P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d',
+            'e','f','g','h','i','j','k','l','m','n','o','p','q','r','s',
+            't','u','v','w','x','y','z','0','1','2','3','4','5','6','7',
+            '8','9','+','/' };
+
+        private static readonly string[] HexMap =
+            Enumerable.Range(0, byte.MaxValue + 1).Select(v => v.ToString(HexadecimalFormatSpecifier)).ToArray();
+
         public static string ByteHexToBase64(string hex)
         {
             var byteArray = ByteHexToByteArray(hex);
-            var base64 = Convert.ToBase64String(byteArray);
+            //In case calling the framework Convert.ToBase64String() is considered "cheating"
+            var base64 = ToBase64(byteArray);
+            //var base64 = Convert.ToBase64String(byteArray);
             return base64;
         }
 
@@ -19,25 +52,92 @@ namespace MatasanoCryptoChallenges.Set1
                 throw new ArgumentNullException("hex");
             }
 
-            if (hex.Length % 2 != 0)
+            if (hex.Length%2 != 0)
             {
                 throw new ArgumentException("Hex string length must be an even number.");
             }
 
-            var byteArray = new byte[hex.Length / 2];
+            var byteArray = new byte[hex.Length/2];
 
             using (var sr = new StringReader(hex))
             {
                 var buffer = new char[2];
-                
+
                 for (int i = 0; i < byteArray.Length; i++)
                 {
                     sr.Read(buffer, 0, 2);
-                    byteArray[i] = Convert.ToByte(new string(buffer), 16);
+                    //In case using the framework Convert.ToByte() is considered "cheating"
+                    byteArray[i] = ToByte(buffer);
+                    //byteArray[i] = Convert.ToByte(new string(buffer), 16);
                 }
             }
 
             return byteArray;
+        }
+
+        //In case calling the framework Convert.ToBase64String() is considered cheating
+        public static string ToBase64(byte[] bytes)
+        {
+            var leftoverBytes = bytes.Length%ByteChunkSize;
+            var byteFullChunkLength = bytes.Length - leftoverBytes;
+            var base64FullChunkLength = (bytes.Length/ByteChunkSize)*Base64ChunkSize;
+            
+            var sb = new StringBuilder(base64FullChunkLength + leftoverBytes != 0 ? Base64ChunkSize : 0);
+          
+            for (int i = 0; i < byteFullChunkLength; i += ByteChunkSize)
+            {
+                sb.Append(Base64Map[(bytes[i] & SixMsbMask) >> 2]);
+                sb.Append(Base64Map[((bytes[i] & TwoLsbMask )<< 4) | ((bytes[i + 1] & FourMsbMask) >> 4)]);
+                sb.Append(Base64Map[((bytes[i + 1] & FourLsbMask) << 2) | ((bytes[i + 2] & TwoMsbMask) >> 6)]);
+                sb.Append(Base64Map[(bytes[i + 2] & SixLsbMask)]);
+            }
+
+            switch (leftoverBytes)
+            {
+                case 2:
+                    sb.Append(Base64Map[(bytes[byteFullChunkLength] & SixMsbMask) >> 2]);
+                    sb.Append(
+                        Base64Map[
+                            ((bytes[byteFullChunkLength] & TwoLsbMask) << 4) |
+                            ((bytes[byteFullChunkLength + 1] & FourMsbMask) >> 4)]);
+                    sb.Append(Base64Map[(bytes[byteFullChunkLength + 1] & FourLsbMask) << 2]);
+                    sb.Append(Base64Pad);
+                    break;
+                case 1:
+                    sb.Append(Base64Map[(bytes[byteFullChunkLength] & SixMsbMask) >> 2]);
+                    sb.Append(Base64Map[(bytes[byteFullChunkLength] & TwoLsbMask) << 4]);
+                    sb.Append(Base64Pad);
+                    sb.Append(Base64Pad);
+                    break;
+            }
+            
+            return sb.ToString();
+        }
+
+        //In case using the framework Convert.ToByte() is considered "cheating"
+        public static byte ToByte(char[] twoHexCharsForSingleByte)
+        {
+            if (twoHexCharsForSingleByte == null)
+            {
+                throw new ArgumentNullException("twoHexCharsForSingleByte");
+            }
+            if (twoHexCharsForSingleByte.Length != 2)
+            {
+                throw new ArgumentOutOfRangeException("twoHexCharsForSingleByte", twoHexCharsForSingleByte.Length,
+                    "The hex value for the byte must consist of exactly two characters.");
+            }
+
+            var byteValue = Array.IndexOf(HexMap, new string(twoHexCharsForSingleByte).ToUpperInvariant());
+            if (byteValue == -1)
+            {
+                throw new ArgumentException("Unable to convert provided hex characters to a byte.");
+            }
+            return (byte)byteValue;
+        }
+
+        public static byte ToByte(char mostSignificant, char leastSignificant)
+        {
+            return ToByte(new[] {mostSignificant, leastSignificant});
         }
     }
 }

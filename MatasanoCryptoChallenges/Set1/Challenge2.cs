@@ -50,9 +50,9 @@ namespace MatasanoCryptoChallenges.Set1
             {
                 throw new ArgumentOutOfRangeException("bytesA", "Both input values must be the same length.");
             }
-            
+
             var xorBytes = new byte[bytesA.Length];
-            
+
             for (int i = 0; i < bytesA.Length; i++)
             {
                 xorBytes[i] = (byte)(bytesA[i] ^ bytesB[i]);
@@ -72,7 +72,5 @@ namespace MatasanoCryptoChallenges.Set1
 
             return s.ToString();
         }
-
-        
     }
 }
