@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -32,6 +33,9 @@ namespace MatasanoCryptoChallenges.Set1
             'e','f','g','h','i','j','k','l','m','n','o','p','q','r','s',
             't','u','v','w','x','y','z','0','1','2','3','4','5','6','7',
             '8','9','+','/' };
+
+        private static Dictionary<char, int> Base64CharValueMap =
+            Base64Map.Select((c, i) => new KeyValuePair<char, int>(c, i)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
         private static readonly string[] HexMap =
             Enumerable.Range(0, byte.MaxValue + 1).Select(v => v.ToString(HexadecimalFormatSpecifier)).ToArray();
@@ -112,6 +116,84 @@ namespace MatasanoCryptoChallenges.Set1
             }
             
             return sb.ToString();
+        }
+
+        public static byte[] ToBytes(string base64encoded)
+        {
+            if (base64encoded == null)
+            {
+                throw new ArgumentNullException("base64encoded");
+            }
+
+            if (string.IsNullOrWhiteSpace(base64encoded))
+            {
+                return new byte[0];
+            }
+
+            var leftoverCharacters = base64encoded.Length%Base64ChunkSize;
+            
+            if (leftoverCharacters != 0)
+            {
+                throw new ArgumentException("Base64 length should be evenly divisible by " + Base64ChunkSize + ".");
+            }
+
+            return GetBytesFromCorrectLengthBase64(base64encoded.Trim());
+        }
+
+        private static byte[] GetBytesFromCorrectLengthBase64(string base64encoded)
+        {
+            var base64PadCharCount = base64encoded[base64encoded.Length - 1] == Base64Pad
+                ? (base64encoded[base64encoded.Length - 2] == Base64Pad ? 2 : 1)
+                : 0;
+            var byteLength = ((base64encoded.Length / Base64ChunkSize) * ByteChunkSize) - base64PadCharCount;
+            var bytes = new byte[byteLength];
+
+            var byteFullChunkLength = base64encoded.Length - ((base64PadCharCount > 0 ? 1 : 0) * Base64ChunkSize);
+            
+            using (var ms = new MemoryStream(bytes))
+            {
+                for (int i = 0; i < byteFullChunkLength; i += Base64ChunkSize)
+                {
+                    ms.WriteByte(GetFirstByte(base64encoded, i));
+                    ms.WriteByte(GetSecondByte(base64encoded, i));
+                    ms.WriteByte(GetThirdByte(base64encoded, i));
+                }
+                switch (base64PadCharCount)
+                {
+                    case 1:
+                        ms.WriteByte(GetFirstByte(base64encoded, byteFullChunkLength));
+                        ms.WriteByte(GetSecondByte(base64encoded, byteFullChunkLength));
+                        break;
+                    case 2:
+                        ms.WriteByte(GetFirstByte(base64encoded, byteFullChunkLength)); 
+                        break;
+                }
+                return ms.ToArray();
+            }
+        }
+
+        private static byte GetFirstByte(string base64encoded, int chunkOffset)
+        {
+            return
+                (byte)
+                    ((Base64CharValueMap[base64encoded[chunkOffset]] << 2) |
+                     ((Base64CharValueMap[base64encoded[chunkOffset + 1]] >> 4)));
+        }
+
+        private static byte GetSecondByte(string base64encoded, int chunkOffset)
+        {
+            return
+                (byte)
+                    ((Base64CharValueMap[base64encoded[chunkOffset + 1]] << 4) |
+                     (Base64CharValueMap[base64encoded[chunkOffset + 2]] >> 2));
+        }
+
+        private static byte GetThirdByte(string base64encoded, int chunkOffset)
+        {
+            return
+                (byte)
+                    ((Base64CharValueMap[base64encoded[chunkOffset + 2]] << 6) |
+                     Base64CharValueMap[base64encoded[chunkOffset + 3]]);
         }
 
         //In case using the framework Convert.ToByte() is considered "cheating"

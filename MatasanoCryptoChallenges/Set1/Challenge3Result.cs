@@ -49,7 +49,6 @@ namespace MatasanoCryptoChallenges.Set1
             var commonLetterWeight =
                 EnglishCommonUpperLettersAscending
                     .Select((c, i) => decryptedMessage.Count(x => char.ToUpperInvariant(x) == c) * (i + 1) * CommonLetterFactor)
-                    //.Select((occurrencesOfChar, i) => (occurrencesOfChar * (i + 1) * CommonLetterFactor))
                     .Sum();
             return (commonLetterWeight - NegativeWeightChars.Matches(decryptedMessage).Count) /
                    (decimal) decryptedMessage.Length;

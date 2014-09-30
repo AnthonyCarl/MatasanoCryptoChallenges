@@ -50,6 +50,7 @@
     <Compile Include="Set1\Challenge5.cs" />
     <Compile Include="Set1\Challenge6.cs" />
     <Compile Include="Set1\IChallenge3Result.cs" />
+    <Compile Include="Set1\RepeatingKeyXorBreakerMinMax.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Security.Cryptography;
 using MatasanoCryptoChallenges.Set1;
 using Xunit;
 
